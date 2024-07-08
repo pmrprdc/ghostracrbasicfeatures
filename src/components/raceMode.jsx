@@ -16,16 +16,12 @@ const RaceMode = ({ taskBatches, savedTimedTasks, onTaskBatchSave }) => {
       }, 1000);
     } else if (isRacing && remainingTime === 0) {
       setIsRacing(false);
-      if (currentTaskIndex === selectedBatch.tasks.length - 1) {
-        setShowSavePrompt(true);
-      } else {
-        setGameOver(true);
-      }
+      setGameOver(true);
     }
     return () => {
       clearInterval(interval);
     };
-  }, [isRacing, remainingTime, currentTaskIndex, selectedBatch]);
+  }, [isRacing, remainingTime]);
 
   const getTaskDuration = (taskName) => {
     const savedTask = savedTimedTasks.find(
@@ -44,13 +40,13 @@ const RaceMode = ({ taskBatches, savedTimedTasks, onTaskBatchSave }) => {
     }
   };
 
-  const moveToNextTask = () => {
-    if (currentTaskIndex < selectedBatch.tasks.length - 1) {
-      setCurrentTaskIndex((prevIndex) => prevIndex + 1);
-      setRemainingTime(getTaskDuration(selectedBatch.tasks[currentTaskIndex + 1].name));
-    } else {
+  const finishTask = () => {
+    if (currentTaskIndex === selectedBatch.tasks.length - 1) {
       setIsRacing(false);
       setShowSavePrompt(true);
+    } else {
+      setCurrentTaskIndex((prevIndex) => prevIndex + 1);
+      setRemainingTime(getTaskDuration(selectedBatch.tasks[currentTaskIndex + 1].name));
     }
   };
 
@@ -103,9 +99,7 @@ const RaceMode = ({ taskBatches, savedTimedTasks, onTaskBatchSave }) => {
         <div>
           <h3>Current Task: {selectedBatch.tasks[currentTaskIndex].name}</h3>
           <p>Remaining Time: {remainingTime} seconds</p>
-          {currentTaskIndex < selectedBatch.tasks.length - 1 && (
-            <button onClick={moveToNextTask}>Next Task</button>
-          )}
+          <button onClick={finishTask}>Finish Task</button>
         </div>
       )}
       {gameOver && (
