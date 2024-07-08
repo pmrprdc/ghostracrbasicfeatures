@@ -1,35 +1,64 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useState } from 'react';
+import TaskManager from './components/TaskManager';
+import TimerMode from './components/TimerMode';
+import RaceMode from './components/RaceMode';
 
-function App() {
-  const [count, setCount] = useState(0)
+const App = () => {
+  const [taskBatches, setTaskBatches] = useState([]);
+  const [savedTimedTasks, setSavedTimedTasks] = useState([]);
+
+  const handleTaskBatchAdd = (batchName, newTasks) => {
+    const timestamp = new Date().toLocaleString();
+    const batchWithTimestamp = {
+      name: batchName,
+      tasks: newTasks,
+      timestamp,
+    };
+    setTaskBatches([...taskBatches, batchWithTimestamp]);
+  };
+
+  const handleTaskBatchDelete = (batchIndex) => {
+    const updatedBatches = taskBatches.filter((_, index) => index !== batchIndex);
+    setTaskBatches(updatedBatches);
+  };
+
+  const handleSavedTimedTask = (timedTask) => {
+    setSavedTimedTasks([...savedTimedTasks, timedTask]);
+  };
+
+  const handleTaskBatchSave = (updatedBatch) => {
+    const updatedBatches = taskBatches.map((batch) => {
+      if (batch.name === updatedBatch.name) {
+        return updatedBatch;
+      }
+      return batch;
+    });
+    setTaskBatches(updatedBatches);
+    const updatedTimedTasks = updatedBatch.tasks.map((task) => ({
+      batch: updatedBatch.name,
+      taskName: task.name,
+      taskColor: task.color,
+      duration: task.duration,
+    }));
+    setSavedTimedTasks([...savedTimedTasks, ...updatedTimedTasks]);
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <div>
+      <h1>Task Timer App</h1>
+      <TaskManager onTaskBatchAdd={handleTaskBatchAdd} />
+      <TimerMode
+        taskBatches={taskBatches}
+        onTaskBatchDelete={handleTaskBatchDelete}
+        onSavedTimedTask={handleSavedTimedTask}
+      />
+      <RaceMode
+        taskBatches={taskBatches}
+        savedTimedTasks={savedTimedTasks}
+        onTaskBatchSave={handleTaskBatchSave}
+      />
+    </div>
+  );
+};
 
-export default App
+export default App;
